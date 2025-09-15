@@ -1,6 +1,7 @@
 This assignment is a to create a crew of agents that would assist me with company research for networking purposes
 
-== Initial code
+# Initial code
+```
 # pip install crewai
 
 from crewai import Agent, Task, Crew
@@ -196,3 +197,4 @@ crew = Crew(
 #     }
 # )
 # print(result)
+```
