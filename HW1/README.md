@@ -1,10 +1,30 @@
 This assignment is a to create a crew of agents that would assist me with company research for networking purposes
 
 # Initial code
-```
+```python
 # pip install crewai
 
+# Warning control
+import warnings
+warnings.filterwarnings('ignore')
+
 from crewai import Agent, Task, Crew
+
+import os
+from utils import get_openai_api_key, pretty_print_result
+from utils import get_serper_api_key
+
+openai_api_key = get_openai_api_key()
+os.environ["OPENAI_MODEL_NAME"] = 'gpt-5-nano'
+os.environ["SERPER_API_KEY"] = get_serper_api_key()
+
+
+from crewai_tools import SerperDevTool, \
+                         ScrapeWebsiteTool, \
+                         WebsiteSearchTool
+
+search_tool = SerperDevTool()
+scrape_tool = ScrapeWebsiteTool()
 
 # -----------------------------
 # Config - tweak to taste
@@ -27,23 +47,35 @@ Hard caps: output is a single ranked list of at most TOP_N_OVERALL companies ove
 
 OUTPUT_SCHEMA_GUIDE = """
 Final JSON array item shape:
-{
+{{
   "rank": <int 1..TOP_N_OVERALL>,
-  "company": "<canonical company name>",
+  "company": "<marketed company name>",
   "sub_industry": "<one of the mapped sub-industries>",
-  "stage_label": "<Big Tech | Late-stage startup | Mid-stage startup | Early-stage startup>",
-  "why_it_matters": "<one crisp sentence>",
-  "key_signals": {
-    "funding_stage_or_round": "<text or null>",
-    "employees": "<int or null>",
-    "valuation_or_revenue": "<text or null>",
-    "notable_products_or_share": "<text or null>"
-  },
-  "confidence": "<0.0-1.0>",
-  "sources": ["<url1>", "<url2>", "..."]  # at least MIN_SIGNAL_SOURCES items
-}
+  "stage_label": "<Big Tech | Late-stage startup | Mid-stage startup | Early-stage startup>"
+}}
 Provide the final JSON and also a short, human-friendly Markdown table with the same rows.
 """
+
+
+#OUTPUT_SCHEMA_GUIDE = """
+#Final JSON array item shape:
+#{{
+#  "rank": <int 1..TOP_N_OVERALL>,
+#  "company": "<canonical company name>",
+#  "sub_industry": "<one of the mapped sub-industries>",
+#  "stage_label": "<Big Tech | Late-stage startup | Mid-stage startup | Early-stage startup>",
+#  "why_it_matters": "<one crisp sentence>",
+#  "key_signals": {{
+#    "funding_stage_or_round": "<text or null>",
+#    "employees": "<int or null>",
+#    "valuation_or_revenue": "<text or null>",
+#    "notable_products_or_share": "<text or null>"
+#  }},
+#  "confidence": "<0.0-1.0>",
+#  "sources": ["<url1>", "<url2>", "..."]  # at least MIN_SIGNAL_SOURCES items
+#}}
+#Provide the final JSON and also a short, human-friendly Markdown table with the same rows.
+#"""
 
 # -----------------------------
 # Agents
@@ -108,16 +140,18 @@ map_subindustries = Task(
         "- Do not list any companies yet.\n"
     ),
     expected_output=(
-        "A JSON object with:\n"
-        "{\n"
-        '  "industry": "<input>",\n'
-        '  "scope_note": "<2-4 sentences>",\n'
-        '  "sub_industries": [\n'
-        '    {"name": "<name>", "definition": "<one line>", "aliases": ["a","b"], "include": "<short>", "exclude": "<short>"}\n"
-        "  ]\n"
-        "}\n"
-        "Plus a short Markdown list rendering the sub-industries."
+        #"A JSON object with:\n"
+        #"{\n"
+        #'  "industry": "<input>",\n'
+        #'  "scope_note": "<2-4 sentences>",\n'
+        #'  "sub_industries": [\n'
+        #'    {"name": "<name>", "definition": "<one line>", "aliases": ["a","b"], "include": "<short>", "exclude": "<short>"}\n'
+        #"  ]\n"
+        #"}\n"
+        #"Plus a short Markdown list rendering the sub-industries."
+        "Deliver as a compact Markdown table for a quick skim."
     ),
+    tools=[search_tool, scrape_tool],
     agent=industry_taxonomist,
 )
 
@@ -136,43 +170,44 @@ mine_companies = Task(
         "- Reconcile conflicting facts. Note uncertainty briefly if needed.\n"
         "- Remove duplicates and product-level entries if a parent company is the actual entity.\n"
         "- It is fine to collect more than {top_n} candidates at this stage, but keep it tight and relevant.\n"
-    ).format(min_sources=MIN_SIGNAL_SOURCES, top_n=TOP_N_OVERALL),
+    ).format(industry="{industry}", min_sources=MIN_SIGNAL_SOURCES, top_n=TOP_N_OVERALL),
     expected_output=(
-        "A JSON array named `candidates` where each item includes:\n"
-        "{\n"
-        '  "company": "<name>", "url": "<homepage>", "sub_industry": "<from map>",\n'
-        '  "description": "<one line>",\n'
-        '  "signals": {"funding_stage_or_round":"<text>", "employees":"<int or null>", "valuation_or_revenue":"<text or null>", "notable_products_or_share":"<text or null>"},\n"
-        '  "sources": [{"url":"<url>", "last_updated":"<YYYY-MM or YYYY-MM-DD>", "why_trustworthy":"<short>"}]\n'
-        "}\n"
-        "Deliver as JSON plus a compact Markdown table for a quick skim."
+        #"A JSON array named `candidates` where each item includes:\n"
+        #"{\n"
+        #'  "company": "<name>", "url": "<homepage>", "sub_industry": "<from map>",\n'
+        #'  "description": "<one line>",\n'
+        #'  "signals": {"funding_stage_or_round":"<text>", "employees":"<int or null>", "valuation_or_revenue":"<text or null>", "notable_products_or_share":"<text or null>"},\n'
+        #'  "sources": [{"url":"<url>", "last_updated":"<YYYY-MM or YYYY-MM-DD>", "why_trustworthy":"<short>"}]\n'
+        #"}\n"
+        #"Deliver as JSON plus a compact Markdown table for a quick skim."
+        "Deliver as a compact Markdown table for a quick skim."
     ),
     agent=research_analyst,
+    tools=[search_tool, scrape_tool],
 )
 
 classify_and_rank = Task(
     description=(
         "Take the candidate companies and produce the single ranked list for {industry}. "
-        "Apply the classification rubric and output at most {top_n} rows overall. "
+        "Apply the classification rubric and output at most " + str(TOP_N_OVERALL) + " rows overall. "
         "Each row must include a stage label and a confidence score.\n\n"
         "Do the following in order:\n"
         "1) Canonicalize and dedupe entities. Fix parent vs product labeling.\n"
         "2) Assign stage_label using the rubric below. Use available signals. If signals conflict, use the priority order.\n"
         "3) Score importance across the whole industry with a simple blend: scale (employees or revenue), traction or market share, funding stage, and mindshare. "
         "   Break ties by confidence and data recency. Keep the method simple and explain it in one sentence.\n"
-        "4) Enforce hard cap of {top_n}. Do not exceed it under any circumstance.\n"
-        "5) QA pass: each company must have at least {min_sources} credible sources. Remove rows that do not meet the bar.\n"
+        "4) Enforce hard cap of " + str(TOP_N_OVERALL) + ". Do not exceed it under any circumstance.\n"
+        "5) QA pass: each company must have at least " + str(MIN_SIGNAL_SOURCES) + " credible sources. Remove rows that do not meet the bar.\n"
         "6) Produce final JSON and a short Markdown table.\n\n"
         "Classification rubric:\n"
-        f"{CLASSIFICATION_RUBRIC}\n\n"
+        + CLASSIFICATION_RUBRIC + "\n\n"
         "Output format guide:\n"
-        f"{OUTPUT_SCHEMA_GUIDE}\n"
-    ).format(top_n=TOP_N_OVERALL, min_sources=MIN_SIGNAL_SOURCES),
+        + OUTPUT_SCHEMA_GUIDE + "\n"
+    ),
     expected_output=(
         "Two parts:\n"
         "1) Final JSON array named `top_list` with at most TOP_N_OVERALL items matching the schema guide.\n"
-        "2) A concise Markdown table with columns: Rank, Company, Sub-industry, Stage, Why it matters, Key signals, Confidence, Sources.\n"
-        "Also include a 4-6 sentence executive summary explaining the industry at a glance and how ranking was determined."
+        "2) A concise Markdown table with columns: Rank, Company, Sub-industry, Stage\n"
     ),
     agent=classifier_ranker,
 )
@@ -184,17 +219,16 @@ classify_and_rank = Task(
 crew = Crew(
     agents=[industry_taxonomist, research_analyst, classifier_ranker],
     tasks=[map_subindustries, mine_companies, classify_and_rank],
-    verbose=2,
+    verbose=True,
     memory=True,
 )
 
 # Example of how you might kick it off at runtime:
-# result = crew.kickoff(
-#     inputs={
-#         "industry": "fintech",
-#         "region": "US & Europe",
-#         "time_window": "last 24 months",
-#     }
-# )
-# print(result)
-```
+result = crew.kickoff(
+     inputs={
+         "industry": "fintech",
+         "region": "US",
+         "time_window": "last 12 months",
+     }
+ )
+print(result)
