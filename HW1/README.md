@@ -1,6 +1,42 @@
 This assignment is a to create a crew of agents that would assist me with company research for networking purposes
 
-# Initial code
+## Installation
+
+Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+
+First, if you haven't already, install uv:
+
+```bash
+pip install uv
+```
+
+Next, navigate to your project directory and install the dependencies:
+
+(Optional) Lock the dependencies and install them by using the CLI command:
+```bash
+crewai install
+```
+## Customizing
+
+Create an .env file to handle your API keys
+**Add your `OPENAI_API_KEY` into the `.env` file**
+**Add your `SERPER_API_KEY` into the `.env` file**
+
+```python
+# Examples
+# OPENAI_API_KEY=sk-
+# SERPER_API_KEY=ec
+```
+To make sure your .env file is seen by the environment, Install python-dotenv in the same environment as your notebook:
+```python
+from pathlib import Path
+from dotenv import load_dotenv
+
+# point to the .env file. Adjust the path if your .env is elsewhere
+load_dotenv(dotenv_path=Path.cwd() / ".env")   # loads into os.environ
+```
+
+# Sample code
 ```python
 # pip install crewai
 
