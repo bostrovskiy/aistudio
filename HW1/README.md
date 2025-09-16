@@ -65,7 +65,7 @@ scrape_tool = ScrapeWebsiteTool()
 # -----------------------------
 # Config - tweak to taste
 # -----------------------------
-TOP_N_OVERALL = 20  # set to 10 if you want a top-10 instead
+TOP_N_OVERALL = 30  # set to 10 if you want a top-10 instead
 MIN_SIGNAL_SOURCES = 2  # require at least this many sources per company
 DEFAULT_REGION = "{region}"  # e.g., "US & Europe" - can be overridden at runtime
 DEFAULT_TIME_WINDOW = "{time_window}"  # e.g., "last 24 months" - can be overridden
@@ -174,6 +174,7 @@ map_subindustries = Task(
         "- Note key overlaps and what to exclude to avoid double counting.\n"
         "- This map will drive research and tagging for the final list.\n"
         "- Do not list any companies yet.\n"
+        "Tooling note: When using the Serper search tool, pass a plain string to search_query (not a dict). Example: 'fintech sub-industry map US last 12 months'.\n"
     ),
     expected_output=(
         #"A JSON object with:\n"
@@ -206,6 +207,8 @@ mine_companies = Task(
         "- Reconcile conflicting facts. Note uncertainty briefly if needed.\n"
         "- Remove duplicates and product-level entries if a parent company is the actual entity.\n"
         "- It is fine to collect more than {top_n} candidates at this stage, but keep it tight and relevant.\n"
+        "- Make sure to include all relevant companies in the search query and the final list."
+        "Tooling note: When using the Serper search tool, pass a plain string to search_query (not a dict). Example: 'fintech sub-industry map US last 12 months'.\n"
     ).format(industry="{industry}", min_sources=MIN_SIGNAL_SOURCES, top_n=TOP_N_OVERALL),
     expected_output=(
         #"A JSON array named `candidates` where each item includes:\n"
