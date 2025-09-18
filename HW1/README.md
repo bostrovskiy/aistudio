@@ -1,6 +1,26 @@
-This assignment is a to create a crew of agents that would assist me with company research for networking purposes
+# Description
 
-## Installation
+This assignment is a to create a crew of agents that would assist me with company research for networking purposes. The user enters a common industry name (e.g. fintech) and agents provide a list of the most prominent companies in its industry and sub-industries
+
+# AI usage notice
+AI tools like ChatGPT and Cursor have been used to produce this work. Specifically, ChatGPT was used to refine descriptions of AI agent crew (configuration, agents and tasks), whereas Cursor was used to debug the code and add certain features
+
+# Learnings and limitations
+
+Learnings:
+* I have no technical backgrounds whatsoever, so while doing this exercies, I learned how to use GitHub, typical file structures (readme, utils, env, etc.) and how to code with Cursor
+* I found the CrewAI course on DeepLearning.ai (https://learn.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai) particularly useful to understand the way CrewAI works
+* I was able to autonomously run a crew of agents that helps me to identify importnat companies for networking outreach
+
+Limitations
+* I found that precision level of Agent/Tasks description significantly affects the output -- to the point that a longer and more detailed descripton can actually make results worse
+* Output can be very fuzzy and uncertain -- during industry research the crew ommited important companies or highed unimportant ones higher then needed
+* I was surprised by how slow the Agent Crew is and how many Serper requests they do -- up to 10 per run
+* API usage costs should be closely monitored on OpenAI / Serper dashboards, costs add up pretty quickly (~10 cents per run for in OpenAI costs only) 
+
+# Technical notes
+
+## Installing the environment
 
 Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
 
@@ -16,16 +36,37 @@ Next, navigate to your project directory and install the dependencies:
 ```bash
 crewai install
 ```
-## Customizing
 
-Create an .env file to handle your API keys
+Finally, install Crew AI python package (https://github.com/crewAIInc/crewAI):
+
+```bash
+pip install 'crewai[tools]'
+```
+
+## Connecting to your OpenAI / Cursor API
+
+You need:
+* API keys for OpenAI and Serper
+* `.env file` that contains environment-specific data
+* `utils.py` file that defines functions that call .env file
+
+### How to get API keys
+
+For OpenAI go to https://platform.openai.com/settings/organization/api-keys, create a new secret key, and don't forget to add money
+
+For Serper go to http://serper.dev/api-keys, and create a new secret key
+
+### How to add API keys to the script
+
+Create an .env file to handle your API keys and Open
 **Add your `OPENAI_API_KEY` into the `.env` file**
 **Add your `SERPER_API_KEY` into the `.env` file**
 
 ```python
-# Examples
-# OPENAI_API_KEY=sk-
-# SERPER_API_KEY=ec
+#Example of .env file
+MODEL=gpt-5-nano
+OPENAI_API_KEY=sk-....
+SERPER_API_KEY=ec....
 ```
 To make sure your .env file is seen by the environment, Install python-dotenv in the same environment as your notebook:
 ```python
@@ -36,7 +77,35 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=Path.cwd() / ".env")   # loads into os.environ
 ```
 
-# Sample code
+## Making sure there's a correct `utils.py` file
+```python
+import os
+import json
+
+def get_openai_api_key():
+    key = os.getenv("OPENAI_API_KEY")
+    if not key:
+        raise ValueError("OPENAI_API_KEY not found in environment variables.")
+    return key
+
+def get_serper_api_key():
+    key = os.getenv("SERPER_API_KEY")
+    if not key:
+        raise ValueError("SERPER_API_KEY not found in environment variables.")
+    return key
+
+def get_openai_model_name():
+    key = os.getenv("OPENAI_MODEL_NAME")
+    if not key:
+        raise ValueError("OPENAI_MODEL_NAME not found in environment variables.")
+    return key
+
+def pretty_print_result(result):
+    import json
+    print(json.dumps(result, indent=2))
+```
+
+# Agent code
 ```python
 # pip install crewai
 
@@ -47,8 +116,14 @@ warnings.filterwarnings('ignore')
 from crewai import Agent, Task, Crew
 
 import os
-from utils import get_openai_api_key, pretty_print_result
-from utils import get_serper_api_key
+import importlib
+import utils
+importlib.reload(utils)
+from utils import get_openai_api_key, get_serper_api_key, get_openai_model_name, pretty_print_result
+
+openai_api_key = get_openai_api_key()
+os.environ["OPENAI_MODEL_NAME"] = get_openai_model_name()
+os.environ["SERPER_API_KEY"] = get_serper_api_key()
 
 openai_api_key = get_openai_api_key()
 os.environ["OPENAI_MODEL_NAME"] = 'gpt-5-nano'
@@ -66,7 +141,7 @@ scrape_tool = ScrapeWebsiteTool()
 # Config - tweak to taste
 # -----------------------------
 TOP_N_OVERALL = 30  # set to 10 if you want a top-10 instead
-MIN_SIGNAL_SOURCES = 2  # require at least this many sources per company
+#MIN_SIGNAL_SOURCES = 2  # require at least this many sources per company
 DEFAULT_REGION = "{region}"  # e.g., "US & Europe" - can be overridden at runtime
 DEFAULT_TIME_WINDOW = "{time_window}"  # e.g., "last 24 months" - can be overridden
 INDUSTRY = "{industry}"  # required input
@@ -201,7 +276,7 @@ mine_companies = Task(
         "- Sub-industry tag from the map\n"
         "- One-line description and notable products\n"
         "- Funding stage or latest round, employees, valuation or revenue if available\n"
-        "- At least {min_sources} credible sources with URLs and last-updated dates\n\n"
+        #"- At least {min_sources} credible sources with URLs and last-updated dates\n\n"
         "Quality rules:\n"
         "- Prefer primary sources and recent data. Avoid low-credibility blogs.\n"
         "- Reconcile conflicting facts. Note uncertainty briefly if needed.\n"
@@ -209,7 +284,7 @@ mine_companies = Task(
         "- It is fine to collect more than {top_n} candidates at this stage, but keep it tight and relevant.\n"
         "- Make sure to include all relevant companies in the search query and the final list."
         "Tooling note: When using the Serper search tool, pass a plain string to search_query (not a dict). Example: 'fintech sub-industry map US last 12 months'.\n"
-    ).format(industry="{industry}", min_sources=MIN_SIGNAL_SOURCES, top_n=TOP_N_OVERALL),
+    ).format(industry="{industry}", top_n=TOP_N_OVERALL),
     expected_output=(
         #"A JSON array named `candidates` where each item includes:\n"
         #"{\n"
@@ -236,7 +311,7 @@ classify_and_rank = Task(
         "3) Score importance across the whole industry with a simple blend: scale (employees or revenue), traction or market share, funding stage, and mindshare. "
         "   Break ties by confidence and data recency. Keep the method simple and explain it in one sentence.\n"
         "4) Enforce hard cap of " + str(TOP_N_OVERALL) + ". Do not exceed it under any circumstance.\n"
-        "5) QA pass: each company must have at least " + str(MIN_SIGNAL_SOURCES) + " credible sources. Remove rows that do not meet the bar.\n"
+        #"5) QA pass: each company must have at least " + str(MIN_SIGNAL_SOURCES) + " credible sources. Remove rows that do not meet the bar.\n"
         "6) Produce final JSON and a short Markdown table.\n\n"
         "Classification rubric:\n"
         + CLASSIFICATION_RUBRIC + "\n\n"
@@ -262,12 +337,63 @@ crew = Crew(
     memory=True,
 )
 
-# Example of how you might kick it off at runtime:
-result = crew.kickoff(
-     inputs={
-         "industry": "fintech",
-         "region": "US",
-         "time_window": "last 12 months",
-     }
- )
-print(result)
+# -----------------------------
+# Inputs - asks for user inputs (make sure to locate the input window)
+# -----------------------------
+
+industry = input("Enter an industry you'd like to research: ")
+if not industry.strip():
+        industry = "fintech"  # Default industry
+        print(f"Using default industry: {industry}")
+else:
+        print(f"Researching {industry}")
+
+region = input("Enter the region you'd like to focus on: ")
+if not region.strip():
+        region = "United States"  # Default region
+        print(f"Using default region: {region}")
+else:
+        print(f"Looking for companies in {region}")
+
+time_window = input("Enter the time window you'd like to consider: ")
+if not time_window.strip():
+        time_window = "last 12 months"  # Default time_window
+        print(f"Using default timeframe: {time_window}")
+else:
+        print(f"Timeframe: {time_window}")
+
+#industry = "WealthTech & Goal‑Based Advisors"  # Change this to your desired industry
+#region = "United States"  # Change this to your desired region
+#time_window = "last 12 months"  # Change this to your desired time window
+
+# Kick-off with error/timeout handling
+import signal
+import time
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("CrewAI execution timed out after 10 minutes")
+
+# Set a 10-minute timeout
+signal.signal(signal.SIGALRM, timeout_handler)
+signal.alarm(600)  # 10 minutes
+
+try:
+    print(f"Starting research for {industry} in {region} over {time_window}...")
+    print("This may take several minutes. Please be patient...")
+    
+    result = crew.kickoff(
+         inputs={
+             "industry": industry,
+             "region": region,
+             "time_window": time_window,
+         }
+     )
+    print("Research completed successfully!")
+    print(result)
+    
+except TimeoutError:
+    print("Research timed out after 10 minutes. Try reducing the scope or simplifying the tasks.")
+except Exception as e:
+    print(f"An error occurred: {e}")
+finally:
+    signal.alarm(0)  # Cancel the alarm
