@@ -159,16 +159,19 @@ Hard caps: output is a single ranked list of at most TOP_N_OVERALL companies ove
 """
 
 OUTPUT_SCHEMA_GUIDE = """
-Final JSON array item shape:
-{{
-  "rank": <int 1..TOP_N_OVERALL>,
-  "company": "<marketed company name>",
-  "sub_industry": "<one of the mapped sub-industries>",
-  "stage_label": "<Big Tech | Late-stage startup | Mid-stage startup | Early-stage startup>"
-}}
-Provide the final JSON and also a short, human-friendly Markdown table with the same rows.
+Provide a human-friendly Markdown table, where companies are sorted from the lowest rank to the highest.
 """
 
+#OUTPUT_SCHEMA_GUIDE = """
+#Final JSON array item shape:
+#{{
+#  "rank": <int 1..TOP_N_OVERALL>,
+#  "company": "<marketed company name>",
+#  "sub_industry": "<one of the mapped sub-industries>",
+#  "stage_label": "<Big Tech | Late-stage startup | Mid-stage startup | Early-stage startup>"
+#}}
+#Provide the final JSON and also a short, human-friendly Markdown table with the same rows.
+#"""
 
 #OUTPUT_SCHEMA_GUIDE = """
 #Final JSON array item shape:
@@ -225,12 +228,12 @@ classifier_ranker = Agent(
     role="Stage Classifier and Ranker",
     goal=(
         "Apply the rubric precisely, assign stage labels with confidence scores, rank companies across the whole industry, "
-        "enforce the hard cap of TOP_N_OVERALL, and produce the final JSON plus a compact Markdown table."
+        "enforce the hard cap of " + str(TOP_N_OVERALL) + ", and produce the final JSON plus a compact Markdown table."
     ),
     backstory=(
         "You are a former VC analyst and product manager. You are pragmatic about imperfect data, explain your choices, "
         "and keep results scannable. You do light QA: dedupe entities, fix parent vs product mixups, check that each row "
-        "has enough sources, and ensure no more than TOP_N_OVERALL items make it to the final list."
+        "has enough sources, and ensure no more than " + str(TOP_N_OVERALL) +" items make it to the final list."
     ),
 )
 
@@ -312,8 +315,8 @@ classify_and_rank = Task(
         "2) Assign stage_label using the rubric below. Use available signals. If signals conflict, use the priority order.\n"
         "3) Score importance across the whole industry with a simple blend: scale (employees or revenue), traction or market share, funding stage, and mindshare. "
         "   Break ties by confidence and data recency. Keep the method simple and explain it in one sentence.\n"
-        "4) Enforce hard cap of " + str(TOP_N_OVERALL) + ". Do not exceed it under any circumstance.\n"
-        "5) Product a short Markdown table as a final result"
+        "4) Enforce hard cap of " + str(TOP_N_OVERALL) + " companies. Do not exceed it under any circumstance.\n"
+        "5) Product a Markdown table as a final result"
         #"5) QA pass: each company must have at least " + str(MIN_SIGNAL_SOURCES) + " credible sources. Remove rows that do not meet the bar.\n"
         #"6) Produce final JSON and a short Markdown table.\n\n"
         "Classification rubric:\n"
