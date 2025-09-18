@@ -14,7 +14,7 @@ AI tools like ChatGPT and Cursor have been used to produce this work. Specifical
 
 **Limitations**
 * I found that precision level of Agent/Tasks description significantly affects the output -- to the point that a longer and more detailed descripton can actually make results worse
-* Output can be very fuzzy and uncertain -- during industry research the crew ommited important companies or highed unimportant ones higher then needed
+* Output can be very fuzzy and uncertain -- during industry research the crew ommited important companies or highed unimportant ones higher then needed, sometimes output was completely empty
 * I was surprised by how slow the Agent Crew is and how many Serper requests they do -- up to 10 per run
 * API usage costs should be closely monitored on OpenAI / Serper dashboards, costs add up pretty quickly (~10 cents per run for in OpenAI costs only) 
 
