@@ -13,6 +13,12 @@ def get_serper_api_key():
         raise ValueError("SERPER_API_KEY not found in environment variables.")
     return key
 
+def get_openai_model_name():
+    key = os.getenv("OPENAI_MODEL_NAME")
+    if not key:
+        raise ValueError("OPENAI_MODEL_NAME not found in environment variables.")
+    return key
+
 def pretty_print_result(result):
     import json
     print(json.dumps(result, indent=2))
