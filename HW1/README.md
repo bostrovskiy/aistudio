@@ -7,12 +7,12 @@ AI tools like ChatGPT and Cursor have been used to produce this work. Specifical
 
 # Learnings and limitations
 
-Learnings:
+**Learnings:**
 * I have no technical backgrounds whatsoever, so while doing this exercies, I learned how to use GitHub, typical file structures (readme, utils, env, etc.) and how to code with Cursor
 * I found the CrewAI course on DeepLearning.ai (https://learn.deeplearning.ai/courses/multi-ai-agent-systems-with-crewai) particularly useful to understand the way CrewAI works
 * I was able to autonomously run a crew of agents that helps me to identify importnat companies for networking outreach
 
-Limitations
+**Limitations**
 * I found that precision level of Agent/Tasks description significantly affects the output -- to the point that a longer and more detailed descripton can actually make results worse
 * Output can be very fuzzy and uncertain -- during industry research the crew ommited important companies or highed unimportant ones higher then needed
 * I was surprised by how slow the Agent Crew is and how many Serper requests they do -- up to 10 per run
@@ -58,9 +58,11 @@ For Serper go to http://serper.dev/api-keys, and create a new secret key
 
 ### How to add API keys to the script
 
-Create an .env file to handle your API keys and Open
-**Add your `OPENAI_API_KEY` into the `.env` file**
-**Add your `SERPER_API_KEY` into the `.env` file**
+Create an .env file to handle your API keys and add the following data:
+* Your preferred `MODEL`
+* Your `OPENAI_API_KEY`
+* Your `SERPER_API_KEY`
+
 
 ```python
 #Example of .env file
@@ -311,17 +313,19 @@ classify_and_rank = Task(
         "3) Score importance across the whole industry with a simple blend: scale (employees or revenue), traction or market share, funding stage, and mindshare. "
         "   Break ties by confidence and data recency. Keep the method simple and explain it in one sentence.\n"
         "4) Enforce hard cap of " + str(TOP_N_OVERALL) + ". Do not exceed it under any circumstance.\n"
+        "5) Product a short Markdown table as a final result"
         #"5) QA pass: each company must have at least " + str(MIN_SIGNAL_SOURCES) + " credible sources. Remove rows that do not meet the bar.\n"
-        "6) Produce final JSON and a short Markdown table.\n\n"
+        #"6) Produce final JSON and a short Markdown table.\n\n"
         "Classification rubric:\n"
         + CLASSIFICATION_RUBRIC + "\n\n"
         "Output format guide:\n"
         + OUTPUT_SCHEMA_GUIDE + "\n"
     ),
     expected_output=(
-        "Two parts:\n"
-        "1) Final JSON array named `top_list` with at most TOP_N_OVERALL items matching the schema guide.\n"
-        "2) A concise Markdown table with columns: Rank, Company, Sub-industry, Stage\n"
+        #"Two parts:\n"
+        #"1) Final JSON array named `top_list` with at most TOP_N_OVERALL items matching the schema guide.\n"
+        "A concise Markdown table with columns: Rank, Company, Sub-industry, Stage\n"
+        "Not a JSON array"
     ),
     agent=classifier_ranker,
 )
