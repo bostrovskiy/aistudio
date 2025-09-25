@@ -1,0 +1,53 @@
+nohup: ignoring input
+🤖 NANDA initialized with custom improvement logic: pirate_improvement
+🔧 Custom improvement logic 'pirate_improvement' registered
+Message improver set to: nanda_custom
+✅ AgentBridge created with custom improve_message_direct: pirate_improvement
+Starting Pirate Agent with LangChain...
+All messages will be transformed to pirate English!
+🌐 Detecting server IP address...
+✅ Detected server IP: 54.162.129.224
+🤖 Auto-generated agent ID: agents332030
+🔗 Auto-generated public URL: http://54.162.129.224:6000
+Registry URL file not found. Using default: https://chat.nanda-registry.com:6900
+🚀 Starting agent bridge for agents332030 on port 6000...
+🚀 NANDA starting agent_bridge server with custom logic...
+🔧 UI_CLIENT_URL: https://ai-studio-hw2.ostrovskiy.xyz:6001/api/receive_message
+Using default registry URL: https://chat.nanda-registry.com:6900
+Registering agent agents332030 with URL http://54.162.129.224:6000 at registry https://chat.nanda-registry.com:6900...
+
+==================================================
+🤖 Agent agents332030 is running
+🌐 Server IP: 54.162.129.224
+Agent Bridge URL: http://localhost:6000/a2a
+Public Client API URL: http://54.162.129.224:6000
+==================================================
+
+📡 API Endpoints:
+  GET  https://ai-studio-hw2.ostrovskiy.xyz:6001/api/health - Health check
+  POST https://ai-studio-hw2.ostrovskiy.xyz:6001/api/send - Send a message to the client
+  GET  https://ai-studio-hw2.ostrovskiy.xyz:6001/api/agents/list - List all registered agents
+  POST https://ai-studio-hw2.ostrovskiy.xyz:6001/api/receive_message - Receive a message from agent
+  GET  https://ai-studio-hw2.ostrovskiy.xyz:6001/api/render - Get the latest message
+
+🛑 Press Ctrl+C to stop all processes.
+🔒 Using certificates from current folder: cert=./fullchain.pem, key=./privkey.pem
+🔒 Using SSL certificates from: ./fullchain.pem, ./privkey.pem
+🚀 Starting Flask API server on port 6001...
+ * Serving Flask app 'run_ui_agent_https'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on https://127.0.0.1:6001
+ * Running on https://172.31.17.248:6001
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+✅ Both servers are now running in background threads
+🔧 Agent Bridge: http://localhost:6000
+🔧 Flask API: https://localhost:6001
+🚀 Both servers started successfully!
+📝 Servers are running in background threads
+💡 To run in background, use: python3 script.py &
+******************************************************
+You can assign your agent using this link
+https://chat.nanda-registry.com/landing.html?agentId=agents332030
+******************************************************
