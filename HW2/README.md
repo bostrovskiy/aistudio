@@ -35,13 +35,15 @@ pip install nanda-adapter crewai langchain-anthropic
 4) Configure your Domain and SSL Certificates
 
 ```bash
+cd nanda_agent/examples
+
 sudo certbot certonly --standalone -d ai-studio-hw2.ostrovskiy.xyz
 sudo cp -L /etc/letsencrypt/live/ai-studio-hw2.ostrovskiy.xyz/fullchain.pem .
 sudo cp -L /etc/letsencrypt/live/ai-studio-hw2.ostrovskiy.xyz/privkey.pem .
 sudo chown $USER:$USER fullchain.pem privkey.pem
 chmod 600 fullchain.pem privkey.pem
 ```
-cd nanda_agent/examples
+
 
 
 5) Set Your enviroment variables ANTHROPIC_API_KEY
