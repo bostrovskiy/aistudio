@@ -1,0 +1,10 @@
+# What this agent does
+The agent is an example LangChain agent that converst any input message into pirate English using Claude. 
+
+# Feedback for Nanda Adapter
+* Nanda adapter is pretty easy to setup and deploy to EC2
+* It has an easy integration with Claude API
+* It allows for an automatic registration with Nanda registry
+* A2A protocol (port 6000) apparently has message aprsing bugs - sends empty content to Claude API
+* There were SSL/TLS compatibility issues with macOS clients
+
