@@ -1,3 +1,6 @@
+# AI Usage disclosure
+AI-assisted IDE was used to generate and debug the code below
+
 # Logging in
 ```bash
 #Amazon Linux 2023: 
@@ -61,3 +64,4 @@ nohup python3 langchain_pirate.py > out.log 2>&1 &
 ```bash
 cat out.log
 ```
+
