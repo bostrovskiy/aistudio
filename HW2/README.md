@@ -1,5 +1,8 @@
 # Logging in
-Amazon Linux 2023: ssh -i <KEY.pem> ec2-user@<EC2_IP>
+```bash
+#Amazon Linux 2023: 
+ssh -i <KEY.pem> ec2-user@<EC2_IP>
+```
 
 # Installation
 1) Install system deps
