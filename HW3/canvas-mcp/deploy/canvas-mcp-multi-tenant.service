@@ -1,0 +1,20 @@
+[Unit]
+Description=Multi-Tenant Canvas MCP Server
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/aistudio/HW3/canvas-mcp
+Environment=PATH=/home/ec2-user/.local/bin:/usr/bin:/usr/local/bin
+Environment=PYTHONPATH=/home/ec2-user/.local/lib/python3.11/site-packages
+ExecStart=/usr/bin/python3.11 /home/ec2-user/aistudio/HW3/canvas-mcp/deploy/multi-tenant-server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=canvas-mcp-multi-tenant
+
+[Install]
+WantedBy=multi-user.target

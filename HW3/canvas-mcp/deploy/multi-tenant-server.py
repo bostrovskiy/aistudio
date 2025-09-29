@@ -8,6 +8,7 @@ import asyncio
 import json
 import os
 import sys
+import time
 import uuid
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
@@ -17,6 +18,19 @@ import secrets
 from mcp.server.fastmcp import FastMCP
 from mcp.server.models import InitializationOptions
 import httpx
+
+# Fix asyncio event loop issue
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+else:
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # If loop is already running, create a new one
+            asyncio.set_event_loop(asyncio.new_event_loop())
+    except RuntimeError:
+        # No event loop exists, create one
+        asyncio.set_event_loop(asyncio.new_event_loop())
 
 class MultiTenantCanvasServer:
     """Multi-tenant Canvas MCP Server with per-user credential isolation."""
@@ -337,4 +351,11 @@ async def main():
     await server.run()
 
 if __name__ == "__main__":
+    # Additional asyncio fix for systemd service
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+    
+    # Run the server
     asyncio.run(main())
