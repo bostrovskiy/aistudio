@@ -79,7 +79,7 @@ User=$APP_USER
 Group=$APP_USER
 WorkingDirectory=$APP_DIR
 Environment=PATH=/usr/bin:/usr/local/bin
-ExecStart=/usr/bin/python3 $APP_DIR/multi-tenant-server.py
+ExecStart=/usr/bin/python3 $APP_DIR/deploy/multi-tenant-server.py
 Restart=always
 RestartSec=10
 StandardOutput=journal

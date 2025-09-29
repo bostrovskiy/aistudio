@@ -71,6 +71,8 @@ sudo chown -R canvas-mcp:canvas-mcp /opt/canvas-mcp
 # Copy application files
 log "Installing application..."
 sudo cp -r . /opt/canvas-mcp/
+sudo cp -r ./deploy /opt/canvas-mcp/
+sudo cp -r ./src /opt/canvas-mcp/
 sudo chown -R canvas-mcp:canvas-mcp /opt/canvas-mcp
 
 # Install the application
