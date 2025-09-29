@@ -1,0 +1,22 @@
+# Canvas MCP Server - Production Requirements
+# HTTP/HTTPS endpoint with enhanced security
+
+# Core dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+httpx>=0.27.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# Security and logging
+python-dotenv>=1.0.0
+cryptography>=41.0.0
+
+# Optional: For advanced security features
+bcrypt>=4.0.0
+passlib[bcrypt]>=1.7.4
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+httpx>=0.27.0

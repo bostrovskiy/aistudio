@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  canvas-mcp-http:
+    build:
+      context: .
+      dockerfile: Dockerfile-http
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      # Uncomment and configure for HTTPS
+      # - SSL_KEYFILE=/app/ssl/private.key
+      # - SSL_CERTFILE=/app/ssl/certificate.crt
+    volumes:
+      # Uncomment for SSL certificates
+      # - ./ssl:/app/ssl:ro
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Nginx reverse proxy for HTTPS
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - canvas-mcp-http
+    restart: unless-stopped
+    profiles:
+      - nginx

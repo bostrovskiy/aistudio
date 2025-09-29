@@ -23,6 +23,12 @@ A secure, multi-tenant Message Control Protocol (MCP) server for Canvas Learning
 ```bash
 git clone https://github.com/your-username/canvas-mcp.git
 cd canvas-mcp
+
+# Copy the environment template
+cp .env.template .env
+
+# Edit .env with your Canvas credentials
+nano .env
 ```
 
 ### 2. Deploy to AWS EC2

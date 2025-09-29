@@ -1,0 +1,41 @@
+# Canvas MCP Server - Production Dockerfile
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    nginx \
+    certbot \
+    python3-certbot-nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install Python dependencies
+COPY deploy/requirements-production.txt .
+RUN pip install --no-cache-dir -r requirements-production.txt
+
+# Copy application files
+COPY deploy/mcp-http-server-production.py .
+COPY deploy/setup-ssl-production.sh .
+
+# Create log directory
+RUN mkdir -p /var/log && touch /var/log/canvas-mcp-security.log
+
+# Set permissions
+RUN chmod +x setup-ssl-production.sh
+
+# Create nginx user and set permissions
+RUN useradd -r -s /bin/false canvas-mcp && \
+    chown -R canvas-mcp:canvas-mcp /app && \
+    chown -R canvas-mcp:canvas-mcp /var/log
+
+# Expose ports
+EXPOSE 80 443 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/ || exit 1
+
+# Default command
+CMD ["python", "mcp-http-server-production.py"]
