@@ -1,0 +1,45 @@
+{
+  "name": "canvas-mcp-server",
+  "version": "1.0.0",
+  "description": "A secure, multi-tenant Message Control Protocol (MCP) server for Canvas Learning Management System integration",
+  "main": "deploy/multi-tenant-server.py",
+  "scripts": {
+    "start": "python deploy/multi-tenant-server.py",
+    "start-single": "canvas-mcp-server",
+    "test": "python -m pytest",
+    "lint": "flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics",
+    "format": "black .",
+    "deploy": "./setup.sh",
+    "deploy-multi": "./deploy/multi-tenant-deploy.sh",
+    "deploy-single": "./deploy/secure-deploy.sh"
+  },
+  "keywords": [
+    "canvas",
+    "lms",
+    "mcp",
+    "claude",
+    "education",
+    "api",
+    "multi-tenant",
+    "security",
+    "ferpa"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/canvas-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/canvas-mcp/issues"
+  },
+  "homepage": "https://github.com/your-username/canvas-mcp#readme",
+  "engines": {
+    "python": ">=3.10"
+  },
+  "devDependencies": {
+    "pytest": "^7.0.0",
+    "flake8": "^6.0.0",
+    "black": "^23.0.0"
+  }
+}
