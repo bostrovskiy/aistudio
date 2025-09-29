@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  canvas-mcp-server:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile-production
+    container_name: canvas-mcp-server
+    ports:
+      - "8080:8080"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - SECURITY_LOG_FILE=/var/log/canvas-mcp-security.log
+      - MAX_SESSIONS_PER_USER=5
+      - MAX_REQUESTS_PER_MINUTE=60
+      - MAX_REQUESTS_PER_IP_PER_MINUTE=100
+      - CORS_ORIGINS=https://localhost,https://127.0.0.1
+    volumes:
+      - ./logs:/var/log
+      - ./ssl:/etc/ssl
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: canvas-mcp-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx-production.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+      - ./logs:/var/log/nginx
+    depends_on:
+      - canvas-mcp-server
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    container_name: canvas-mcp-certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./logs:/var/log/letsencrypt
+    command: certonly --webroot --webroot-path=/var/www/html --email admin@yourdomain.com --agree-tos --no-eff-email -d yourdomain.com
+    depends_on:
+      - nginx

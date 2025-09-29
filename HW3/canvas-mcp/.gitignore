@@ -5,6 +5,21 @@
 .env.local
 .env.production
 .env.staging
+.env.*
+!.env.template
+
+# Credential files
+credentials.json
+*.credentials
+*.keys
+*.pem
+*.p12
+*.pfx
+
+# Personal information
+personal/
+private/
+sensitive/
 
 # Python
 __pycache__/

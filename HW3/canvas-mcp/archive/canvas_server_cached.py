@@ -30,7 +30,7 @@ T = TypeVar('T')
 F = TypeVar('F', bound=Callable[..., Any])
 
 # Constants
-API_BASE_URL = os.environ.get("CANVAS_API_URL", "https://canvas.illinois.edu/api/v1")
+API_BASE_URL = os.environ.get("CANVAS_API_URL", "https://your-institution.canvas.edu/api/v1")
 API_TOKEN = os.environ.get("CANVAS_API_TOKEN", "")
 
 # Parameter validation and conversion system
