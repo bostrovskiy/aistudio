@@ -1,0 +1,23 @@
+# SECURE Canvas MCP Server Requirements
+# Enterprise-grade security with FERPA compliance
+
+# Core MCP Framework
+fastmcp>=1.0.0
+
+# HTTP Client with SSL/TLS support
+httpx>=0.25.0
+
+# Security and Encryption
+cryptography>=41.0.0
+
+# Async Support
+asyncio
+
+# Standard Library (included with Python)
+# - hashlib (PBKDF2-HMAC)
+# - secrets (cryptographic random)
+# - uuid (session IDs)
+# - threading (session management)
+# - gc (memory cleanup)
+# - time (rate limiting)
+# - datetime (session expiry)
