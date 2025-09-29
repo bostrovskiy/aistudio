@@ -1,3 +1,6 @@
+# AI Usage notice
+This MCP server implementation was created by using Cursor. Source code for the protocol was provided by https://github.com/vishalsachdev/canvas-mcp with additional Cursor support to tailor it to my needs. 
+
 # Canvas MCP Server
 
 A secure, multi-tenant Message Control Protocol (MCP) server for Canvas Learning Management System integration. This server enables AI-powered interactions with Canvas while maintaining complete data privacy and security.
