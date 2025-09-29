@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  canvas-mcp-server:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile
+    container_name: canvas-mcp-server
+    restart: unless-stopped
+    environment:
+      # Canvas API Configuration
+      - CANVAS_API_TOKEN=${CANVAS_API_TOKEN}
+      - CANVAS_API_URL=${CANVAS_API_URL}
+      
+      # Server Configuration
+      - MCP_SERVER_NAME=${MCP_SERVER_NAME:-canvas-api}
+      - DEBUG=${DEBUG:-false}
+      - API_TIMEOUT=${API_TIMEOUT:-30}
+      - CACHE_TTL=${CACHE_TTL:-300}
+      
+      # Privacy Settings
+      - ENABLE_DATA_ANONYMIZATION=${ENABLE_DATA_ANONYMIZATION:-true}
+      - ANONYMIZATION_DEBUG=${ANONYMIZATION_DEBUG:-false}
+      
+      # Optional
+      - INSTITUTION_NAME=${INSTITUTION_NAME:-}
+    
+    # Port mapping (if needed for health checks)
+    ports:
+      - "8000:8000"
+    
+    # Volume mounts
+    volumes:
+      - canvas-mcp-logs:/app/logs
+      - canvas-mcp-data:/app/data
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  canvas-mcp-logs:
+    driver: local
+  canvas-mcp-data:
+    driver: local
