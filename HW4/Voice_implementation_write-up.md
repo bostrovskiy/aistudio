@@ -73,7 +73,7 @@ def play_and_save_audio(audio_content, filename_prefix="audio_output"):
 **Voice Output**: In-line audio playback of spoken results + a separate audio file:
 > "Research completed for fintech in United States over last 12 months. Here are the top companies found: 1. PayPal Holdings, Inc., Payments & Payment Processing, Big Tech. 2. Block, Inc., Payments & Payment Processing, Big Tech. 3. Global Payments Inc., Payments & Payment Processing, Big Tech..."
 
-**Saved File example in GitHub repo**: `research_results_20241220_143022.mp3`
+**Saved File example in GitHub repo**: `research_results_20251007_215026.mp3`
 
 ## Key Insights and Lessons Learned
 
