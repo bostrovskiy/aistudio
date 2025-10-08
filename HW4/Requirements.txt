@@ -1,0 +1,5 @@
+crewai>=0.28.8
+crewai[tools]>=0.28.8
+openai>=1.0.0
+ipywidgets>=8.0.0
+pydub>=0.25.1
