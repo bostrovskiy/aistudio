@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Connection Debug</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #2563eb;
+        }
+        .btn.secondary {
+            background: #6b7280;
+        }
+        .btn.secondary:hover {
+            background: #4b5563;
+        }
+        .test-area {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 OpenAI Connection Debug</h1>
+        
+        <div id="statusContainer">
+            <div class="status info">Checking OpenAI connection status...</div>
+        </div>
+
+        <div class="input-group">
+            <label for="apiKey">OpenAI API Key:</label>
+            <input type="password" id="apiKey" placeholder="sk-..." />
+        </div>
+
+        <div>
+            <button class="btn" onclick="setApiKey()">Set API Key</button>
+            <button class="btn secondary" onclick="testConnection()">Test Connection</button>
+            <button class="btn secondary" onclick="clearApiKey()">Clear API Key</button>
+        </div>
+
+        <div class="test-area">
+            <h3>Test Query</h3>
+            <div class="input-group">
+                <label for="testQuery">Test Message:</label>
+                <input type="text" id="testQuery" placeholder="I need a camera for beach photography" />
+            </div>
+            <button class="btn" onclick="testQuery()">Test Query</button>
+            <div id="testResult"></div>
+        </div>
+
+        <div class="log" id="logContainer">
+            <div>Debug Log:</div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="data-provider.js"></script>
+    <script src="payment-provider.js"></script>
+    <script src="openai-service.js"></script>
+    <script src="agent.js"></script>
+
+    <script>
+        let openaiService, agent, dataProvider, paymentProvider;
+
+        function log(message) {
+            const logContainer = document.getElementById('logContainer');
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const container = document.getElementById('statusContainer');
+            container.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        async function init() {
+            log('🚀 Initializing debug environment...');
+            
+            dataProvider = new DataProvider();
+            paymentProvider = new PaymentProvider();
+            openaiService = new OpenAIService();
+            agent = new ShoppingAgent(dataProvider, paymentProvider, openaiService);
+
+            // Check current status
+            const hasKey = await openaiService.loadApiKey();
+            if (hasKey) {
+                updateStatus('✅ OpenAI API key found and loaded', 'success');
+                log('✅ API key loaded successfully');
+            } else {
+                updateStatus('❌ No OpenAI API key found. Please set one above.', 'error');
+                log('❌ No API key found');
+            }
+
+            log('🔧 Debug environment ready');
+        }
+
+        function setApiKey() {
+            const key = document.getElementById('apiKey').value.trim();
+            if (openaiService.setApiKey(key)) {
+                updateStatus('✅ API key set successfully', 'success');
+                log('✅ API key set: ' + key.substring(0, 10) + '...');
+                // Enable OpenAI in the agent
+                agent.enableOpenAI().then(enabled => {
+                    if (enabled) {
+                        log('✅ OpenAI enabled in agent');
+                    } else {
+                        log('❌ Failed to enable OpenAI in agent');
+                    }
+                });
+            } else {
+                updateStatus('❌ Invalid API key format. Must start with "sk-" and be at least 20 characters.', 'error');
+                log('❌ Invalid API key format');
+            }
+        }
+
+        async function testConnection() {
+            log('🧪 Testing OpenAI connection...');
+            updateStatus('Testing connection...', 'info');
+
+            try {
+                if (!openaiService.apiKey) {
+                    throw new Error('No API key set');
+                }
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${openaiService.apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            { role: 'user', content: 'Say "OpenAI connection successful!"' }
+                        ],
+                        max_tokens: 50
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const message = data.choices[0].message.content;
+                
+                updateStatus(`✅ Connection successful! Response: "${message}"`, 'success');
+                log('✅ OpenAI API test successful: ' + message);
+                
+            } catch (error) {
+                updateStatus(`❌ Connection failed: ${error.message}`, 'error');
+                log('❌ OpenAI API test failed: ' + error.message);
+            }
+        }
+
+        async function testQuery() {
+            const query = document.getElementById('testQuery').value.trim();
+            if (!query) {
+                alert('Please enter a test query');
+                return;
+            }
+
+            log('🧪 Testing query: ' + query);
+            updateStatus('Testing query...', 'info');
+
+            try {
+                // Enable OpenAI if we have a key
+                if (openaiService.apiKey) {
+                    await agent.enableOpenAI();
+                }
+
+                const response = await agent.handleUserMessage(query);
+                
+                document.getElementById('testResult').innerHTML = `
+                    <div class="status success">
+                        <strong>Response:</strong><br>
+                        ${response.message}
+                    </div>
+                `;
+                
+                log('✅ Query test successful');
+                log('Response: ' + response.message.substring(0, 100) + '...');
+                
+            } catch (error) {
+                document.getElementById('testResult').innerHTML = `
+                    <div class="status error">
+                        <strong>Error:</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+                log('❌ Query test failed: ' + error.message);
+            }
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('openai_api_key');
+            openaiService.apiKey = null;
+            updateStatus('🗑️ API key cleared', 'info');
+            log('🗑️ API key cleared from localStorage');
+        }
+
+        // Initialize when page loads
+        init();
+    </script>
+</body>
+</html>

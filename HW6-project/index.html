@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro-Level Camera Gear</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="demo-page">
+        <!-- Header -->
+        <header class="demo-header">
+            <h1>Pro-Level Camera Gear</h1>
+            <p>Professional cameras for every photographer</p>
+        </header>
+
+        <!-- Product Grid -->
+        <main class="demo-main">
+            <div class="product-grid" id="productGrid">
+                <!-- Products will be rendered by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Chat Widget Container -->
+    <div class="chat-widget-container" id="chatWidget">
+        <!-- Floating Chat Button -->
+        <button class="chat-widget-button" id="chatButton" aria-label="Open chat">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+
+        <!-- Chat Modal -->
+        <div class="chat-widget-modal" id="chatModal">
+            <div class="chat-widget-header">
+                <h3>AI Shopping Assistant</h3>
+                <button class="chat-widget-close" id="chatClose" aria-label="Close chat">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="chat-widget-messages" id="chatMessages">
+                <div class="chat-widget-message chat-widget-message--agent">
+                    <div class="chat-widget-message-content">
+                        Hi! I'm your AI shopping assistant. I can help you find the perfect camera for your needs. What are you looking for?
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-widget-input-container">
+                <div class="chat-widget-thinking" id="chatThinking" style="display: none;">
+                    <div class="chat-widget-thinking-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span>AI is thinking...</span>
+                </div>
+                <div class="chat-widget-input-wrapper">
+                    <input type="text" class="chat-widget-input" id="chatInput" placeholder="Ask me about cameras..." maxlength="500">
+                    <button class="chat-widget-send" id="chatSend" aria-label="Send message">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="data-provider.js"></script>
+    <script src="payment-provider.js"></script>
+    <script src="openai-service.js"></script>
+    <script src="agent.js"></script>
+    <script src="chat-ui.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

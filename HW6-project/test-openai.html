@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force OpenAI Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: 0 auto; }
+        .log { background: #000; color: #0f0; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; margin: 15px 0; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .status { padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Force OpenAI Test</h1>
+        
+        <div id="status" class="status info">Initializing...</div>
+        
+        <div>
+            <button class="btn" onclick="testOpenAI()">Test OpenAI Response</button>
+            <button class="btn" onclick="testSimple()">Test Simple Response</button>
+            <button class="btn" onclick="forceOpenAI()">Force Enable OpenAI</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="data-provider.js"></script>
+    <script src="payment-provider.js"></script>
+    <script src="openai-service.js"></script>
+    <script src="agent.js"></script>
+
+    <script>
+        let openaiService, agent, dataProvider, paymentProvider;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            logDiv.appendChild(div);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            document.getElementById('status').textContent = message;
+            document.getElementById('status').className = 'status ' + type;
+        }
+
+        async function init() {
+            log('🚀 Initializing test environment...');
+            
+            dataProvider = new DataProvider();
+            paymentProvider = new PaymentProvider();
+            openaiService = new OpenAIService();
+            agent = new ShoppingAgent(dataProvider, paymentProvider, openaiService);
+
+            // Check if we have an API key
+            const storedKey = localStorage.getItem('openai_api_key');
+            if (storedKey && storedKey.startsWith('sk-')) {
+                openaiService.apiKey = storedKey;
+                log('✅ Found API key in localStorage: ' + storedKey.substring(0, 10) + '...');
+                updateStatus('API key found', 'success');
+            } else {
+                log('❌ No API key found in localStorage');
+                updateStatus('No API key found - OpenAI will not work', 'error');
+            }
+
+            log('🔧 Test environment ready');
+        }
+
+        async function forceOpenAI() {
+            log('🔧 Forcing OpenAI enable...');
+            
+            if (openaiService.apiKey) {
+                agent.useOpenAI = true;
+                log('✅ Forced OpenAI mode ON');
+                updateStatus('OpenAI mode forced ON', 'success');
+            } else {
+                log('❌ Cannot force OpenAI - no API key');
+                updateStatus('Cannot force OpenAI - no API key', 'error');
+            }
+        }
+
+        async function testOpenAI() {
+            log('🧪 Testing with OpenAI mode...');
+            
+            if (!openaiService.apiKey) {
+                log('❌ No API key available');
+                return;
+            }
+
+            // Force OpenAI mode
+            agent.useOpenAI = true;
+            log('🔧 Forced OpenAI mode ON for this test');
+
+            try {
+                const response = await agent.handleUserMessage('I need a camera for beach photography');
+                log('✅ OpenAI Response: ' + response.message);
+                updateStatus('OpenAI test completed', 'success');
+            } catch (error) {
+                log('❌ OpenAI test failed: ' + error.message);
+                updateStatus('OpenAI test failed', 'error');
+            }
+        }
+
+        async function testSimple() {
+            log('🧪 Testing with Simple mode...');
+            
+            // Force simple mode
+            agent.useOpenAI = false;
+            log('🔧 Forced Simple mode ON for this test');
+
+            try {
+                const response = await agent.handleUserMessage('I need a camera for beach photography');
+                log('✅ Simple Response: ' + response.message);
+                updateStatus('Simple test completed', 'success');
+            } catch (error) {
+                log('❌ Simple test failed: ' + error.message);
+                updateStatus('Simple test failed', 'error');
+            }
+        }
+
+        // Initialize when page loads
+        init();
+    </script>
+</body>
+</html>
