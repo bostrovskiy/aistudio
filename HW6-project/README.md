@@ -1,10 +1,10 @@
 # AI Shopping Agent — Full Storefront Refresh
 
-A professional camera storefront fueled by real B&H Photo product data, complete with catalog browsing, product detail pages, and an AI concierge that remains the primary purchase flow.
+A professional camera storefront fueled by a vetted pro camera dataset, complete with catalog browsing, product detail pages, and an AI concierge that remains the primary purchase flow.
 
 ## Highlights
 
-- 📦 **Real Data** – 14 pro camera bodies parsed directly from downloaded B&H product pages (`scripts/extract_products.py` → `products.json`)
+- 📦 **Real Data** – 14 pro camera bodies sourced from archived product captures (`products.json` is the immutable source of truth)
 - 🛒 **Legit Storefront** – Hero section, layered navigation, filters, hero spotlight, trust badges, and polished product cards
 - 📄 **Dynamic Product Pages** – Deep-dive views with galleries, long-form descriptions, spec grids, and box contents
 - 🤖 **AI Concierge** – Same agent logic, now aware of the full catalog with links back to product detail pages
@@ -18,7 +18,7 @@ HW6-project/
 ├── product.html              # Individual product detail template
 ├── styles.css                # Storefront + chat styling
 ├── config.js                 # Storefront + filter settings
-├── products.json             # Generated B&H dataset (14 cameras)
+├── products.json             # Canonical product dataset (14 cameras)
 ├── assets/
 │   └── images/products/      # Localized hero/gallery assets
 ├── scripts/
@@ -35,13 +35,9 @@ HW6-project/
 └── (debug/test utilities…)
 ```
 
-## Data Pipeline
+## Data Handling
 
-1. Place raw B&H `.html` files inside `B&H data/`
-2. Run `python3 scripts/extract_products.py`
-   - Parses metadata, specs, descriptions, UPCs
-   - Copies hero/gallery images into `assets/images/products`
-   - Emits `products.json` consumed by the UI
+`products.json` / `products.js` are frozen snapshots of the inventory and should not be regenerated for day-to-day work. If you need to rehydrate the dataset from internally archived product HTML, use `scripts/extract_products.py` to parse the saved files, refresh imagery, and emit a new JSON payload into the same location. Keep the archived HTML in a private folder (e.g., `product-html-archive/`) and do not distribute it.
 
 ## Using the Experience
 
@@ -60,7 +56,7 @@ HW6-project/
   - Hero spotlight auto-populates from top-rated product
 - **Product Page**
   - Image gallery with thumbnails
-  - Live spec grid + overview HTML sourced from B&H copy
+  - Live spec grid + overview HTML taken from the archived copy
   - “In the box” + “Not included” lists
   - CTA loops back into the same AI assistant
 - **Assistant**

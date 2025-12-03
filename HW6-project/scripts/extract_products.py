@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Extract product data from the saved B&H product pages and generate a normalized
-`products.json` file plus local product imagery that the storefront can use.
+Extract product data from saved product-page HTML captures and generate a
+normalized `products.json` file plus local product imagery for the storefront.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from typing import List, Optional
 from bs4 import BeautifulSoup
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "B&H data"
+DATA_DIR = PROJECT_ROOT / "product-html-archive"
 OUTPUT_JSON = PROJECT_ROOT / "products.json"
 EMBEDDED_JS = PROJECT_ROOT / "products.js"
 ASSET_DIR = PROJECT_ROOT / "assets" / "images" / "products"

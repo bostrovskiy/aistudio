@@ -7,7 +7,7 @@ const CONFIG = {
     storefront: {
         name: 'Aperture Pro Shop',
         tagline: 'Real pro-level camera inventory curated with AI guidance.',
-        subheading: 'Browse genuine specs pulled from B&H Photo data and let our assistant walk you to the right kit.',
+        subheading: 'Browse genuine specs pulled from our curated catalog and let the assistant walk you to the right kit.',
         heroMetrics: [
             { label: 'Cameras in stock', key: 'inventoryCount' },
             { label: 'Avg. delivery time', value: '2-day shipping' },

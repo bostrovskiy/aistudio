@@ -39,7 +39,6 @@ class CatalogUI {
             maxPriceInput: document.getElementById('maxPrice'),
             pricePresetButtons: document.querySelectorAll('[data-price-preset]'),
             sortSelect: document.getElementById('sortSelect'),
-            resultsCount: document.getElementById('resultsCount'),
             productGrid: document.getElementById('productGrid'),
             heroSpotlight: document.getElementById('heroSpotlight'),
             clearFilters: document.getElementById('clearFilters')
@@ -210,10 +209,6 @@ class CatalogUI {
 
     renderProducts() {
         const products = this.dataProvider.filterProducts(this.state);
-        if (this.elements.resultsCount) {
-            this.elements.resultsCount.textContent = `Showing ${products.length} of ${this.dataProvider.getProducts().length} cameras`;
-        }
-
         if (!this.elements.productGrid) return;
         if (!products.length) {
             this.elements.productGrid.innerHTML = `
@@ -251,7 +246,7 @@ class CatalogUI {
                     <ul class="feature-list">${features}</ul>
                 </div>
                 <div class="card-actions">
-                    <a href="${product.detailUrl}" class="btn primary">View details</a>
+                    <a href="${product.detailUrl}" class="card-link">View details</a>
                 </div>
             </article>
         `;

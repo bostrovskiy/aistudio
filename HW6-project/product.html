@@ -19,39 +19,41 @@
         </div>
     </header>
 
-    <section class="product-hero">
-        <div class="gallery">
-            <div class="gallery-main">
-                <img id="productHeroImage" alt="Camera product image">
+    <main class="product-shell">
+        <section class="product-hero">
+            <div class="gallery">
+                <div class="gallery-main">
+                    <img id="productHeroImage" alt="Camera product image">
+                </div>
+                <div class="thumb-row" id="thumbnailRow"></div>
             </div>
-            <div class="thumb-row" id="thumbnailRow"></div>
-        </div>
-        <div class="product-summary">
-            <p class="eyebrow" id="productCategory">Camera</p>
-            <h1 id="productTitle">Loading...</h1>
-            <div class="price-block">
-                <span class="price" id="productPrice">$0.00</span>
-                <span class="availability" id="productAvailability">Checking stock</span>
+            <div class="product-summary">
+                <p class="eyebrow" id="productCategory">Camera</p>
+                <h1 id="productTitle">Loading...</h1>
+                <div class="price-block">
+                    <span class="price" id="productPrice">$0.00</span>
+                    <span class="availability" id="productAvailability">Checking stock</span>
+                </div>
+                <p class="rating" id="productRating"></p>
+                <p id="productShortDesc"></p>
+                <ul class="feature-list" id="productFeatures"></ul>
+                <div class="cta-stack">
+                    <a class="btn secondary" href="index.html#catalog">View more cameras</a>
+                </div>
             </div>
-            <p class="rating" id="productRating"></p>
-            <p id="productShortDesc"></p>
-            <ul class="feature-list" id="productFeatures"></ul>
-            <div class="cta-stack">
-                <a class="btn secondary" href="index.html#catalog">View more cameras</a>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="product-details">
-        <article class="longform" id="productOverview"></article>
-        <div class="spec-grid" id="specList"></div>
-        <div class="included-list">
-            <h3>Included in the box</h3>
-            <ul id="itemsIncluded"></ul>
-            <h4>Not included</h4>
-            <ul id="itemsExcluded"></ul>
-        </div>
-    </section>
+        <section class="product-details">
+            <article class="longform" id="productOverview"></article>
+            <div class="spec-grid" id="specList"></div>
+            <div class="included-list">
+                <h3>Included in the box</h3>
+                <ul id="itemsIncluded"></ul>
+                <h4>Not included</h4>
+                <ul id="itemsExcluded"></ul>
+            </div>
+        </section>
+    </main>
 
     <div class="chat-widget-container">
         <button class="chat-widget-button" id="chatButton" aria-label="Open chat">
