@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperture Pro Shop — Product</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="product-page">
+    <header class="store-header">
+        <div class="logo"><a href="index.html">Aperture Pro<span>shop</span></a></div>
+        <nav class="main-nav">
+            <a href="index.html#catalog">Catalog</a>
+            <a href="index.html#services">Services</a>
+            <a href="mailto:hello@aperturepro.shop">Contact</a>
+        </nav>
+        <div class="header-actions">
+            <a class="btn primary" href="index.html#catalog">Back to catalog</a>
+        </div>
+    </header>
+
+    <section class="product-hero">
+        <div class="gallery">
+            <div class="gallery-main">
+                <img id="productHeroImage" alt="Camera product image">
+            </div>
+            <div class="thumb-row" id="thumbnailRow"></div>
+        </div>
+        <div class="product-summary">
+            <p class="eyebrow" id="productCategory">Camera</p>
+            <h1 id="productTitle">Loading...</h1>
+            <div class="price-block">
+                <span class="price" id="productPrice">$0.00</span>
+                <span class="availability" id="productAvailability">Checking stock</span>
+            </div>
+            <p class="rating" id="productRating"></p>
+            <p id="productShortDesc"></p>
+            <ul class="feature-list" id="productFeatures"></ul>
+            <div class="cta-stack">
+                <a class="btn secondary" href="index.html#catalog">View more cameras</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="product-details">
+        <article class="longform" id="productOverview"></article>
+        <div class="spec-grid" id="specList"></div>
+        <div class="included-list">
+            <h3>Included in the box</h3>
+            <ul id="itemsIncluded"></ul>
+            <h4>Not included</h4>
+            <ul id="itemsExcluded"></ul>
+        </div>
+    </section>
+
+    <div class="chat-widget-container">
+        <button class="chat-widget-button" id="chatButton" aria-label="Open chat">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+        <div class="chat-widget-modal" id="chatModal">
+            <div class="chat-widget-header">
+                <h3>AI Shopping Assistant</h3>
+                <button class="chat-widget-close" id="chatClose" aria-label="Close chat">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="chat-widget-messages" id="chatMessages">
+                <div class="chat-widget-message chat-widget-message--agent">
+                    <div class="chat-widget-message-content">
+                        Need a second opinion? I can compare this body against others or build a full kit. Ask away!
+                    </div>
+                </div>
+            </div>
+            <div class="chat-widget-input-container">
+                <div class="chat-widget-thinking" id="chatThinking" style="display:none;">
+                    <div class="chat-widget-thinking-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <span>AI is thinking...</span>
+                </div>
+                <div class="chat-widget-input-wrapper">
+                    <input type="text" class="chat-widget-input" id="chatInput" placeholder="Ask me anything about this kit..." maxlength="500">
+                    <button class="chat-widget-send" id="chatSend" aria-label="Send message">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22,2 15,22 11,13 2,9 22,2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="products.js"></script>
+    <script src="config.js"></script>
+    <script src="data-provider.js"></script>
+    <script src="payment-provider.js"></script>
+    <script src="openai-service.js"></script>
+    <script src="agent.js"></script>
+    <script src="chat-ui.js"></script>
+    <script src="product-page.js"></script>
+</body>
+</html>
+

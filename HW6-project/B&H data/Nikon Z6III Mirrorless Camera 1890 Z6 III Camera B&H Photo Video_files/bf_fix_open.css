@@ -1,0 +1,1 @@
+[class^='poInfo_'] p p,p[class^='pickupReadyMessage_'] p{color:transparent;font-size:0px} [class^='poInfo_'] p p:after, p[class^='pickupReadyMessage_'] p:after{content:"Ready for pickup in about 30 minutes after completing order."; color:black;font-size:15px}

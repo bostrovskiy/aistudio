@@ -215,4 +215,15 @@ class ChatUI {
             this.addMessage('Sorry, I encountered an error. Please try again.', 'agent');
         }
     }
+
+    /**
+     * Helper invoked by catalog/product pages to ask the agent something specific
+     * @param {string} prompt
+     */
+    sendPrompt(prompt) {
+        if (!this.elements.chatInput) return;
+        this.openChat();
+        this.elements.chatInput.value = prompt;
+        this.sendMessage();
+    }
 }

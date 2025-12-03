@@ -1,42 +1,24 @@
-// Payment Provider - Payment Layer
-// ~20 lines, future: swap to call real Stripe API
-
+// Payment Provider - generates CTA links for the assistant
 class PaymentProvider {
     constructor() {
-        this.baseUrl = 'https://buy.stripe.com/test/';
+        this.fallbackUrl = 'mailto:hello@aperturepro.shop';
     }
 
-    /**
-     * Generate checkout link for a product
-     * @param {Object} product - Product object with stripePriceId
-     * @returns {string} Checkout URL
-     */
     getCheckoutLink(product) {
-        if (!product || !product.stripePriceId) {
-            console.warn('Product missing stripePriceId:', product);
+        if (!product) {
             return this.getDefaultCheckoutLink();
         }
-        
-        return `${this.baseUrl}${product.stripePriceId}`;
+
+        const detailUrl = product.detailUrl || `product.html?id=${encodeURIComponent(product.id)}`;
+        const separator = detailUrl.includes('?') ? '&' : '?';
+        return `${detailUrl}${separator}source=assistant`;
     }
 
-    /**
-     * Get default checkout link when product data is missing
-     * @returns {string} Default checkout URL
-     */
     getDefaultCheckoutLink() {
-        return `${this.baseUrl}price_1234567890`;
+        return this.fallbackUrl;
     }
 
-    /**
-     * Validate if a product has valid payment data
-     * @param {Object} product - Product object
-     * @returns {boolean} True if valid for checkout
-     */
     isValidForCheckout(product) {
-        return product && 
-               product.stripePriceId && 
-               product.stripePriceId.startsWith('price_') &&
-               product.price > 0;
+        return Boolean(product && product.price > 0);
     }
 }

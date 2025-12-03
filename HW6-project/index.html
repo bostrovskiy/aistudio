@@ -3,35 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pro-Level Camera Gear</title>
+    <title>Aperture Pro Shop — AI Camera Concierge</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="demo-page">
-        <!-- Header -->
-        <header class="demo-header">
-            <h1>Pro-Level Camera Gear</h1>
-            <p>Professional cameras for every photographer</p>
-        </header>
-
-        <!-- Product Grid -->
-        <main class="demo-main">
-            <div class="product-grid" id="productGrid">
-                <!-- Products will be rendered by JavaScript -->
-            </div>
-        </main>
+    <div class="announcement-bar">
+        Free 2-day shipping on pro bodies • Extended holiday returns thru Jan 31
     </div>
+    <header class="store-header">
+        <div class="logo">Aperture Pro<span>shop</span></div>
+    </header>
 
-    <!-- Chat Widget Container -->
+    <main>
+        <section class="catalog" id="catalog">
+            <section class="catalog-results">
+                <div class="catalog-toolbar">
+                    <div>
+                        <p class="eyebrow">Live inventory</p>
+                        <h3 id="resultsCount">Showing 0 cameras</h3>
+                    </div>
+                    <div class="toolbar-actions">
+                        <label for="sortSelect">Sort by</label>
+                        <select id="sortSelect"></select>
+                    </div>
+                </div>
+                <div class="product-grid" id="productGrid"></div>
+            </section>
+        </section>
+
+    </main>
+
     <div class="chat-widget-container" id="chatWidget">
-        <!-- Floating Chat Button -->
         <button class="chat-widget-button" id="chatButton" aria-label="Open chat">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
         </button>
-
-        <!-- Chat Modal -->
         <div class="chat-widget-modal" id="chatModal">
             <div class="chat-widget-header">
                 <h3>AI Shopping Assistant</h3>
@@ -42,17 +49,15 @@
                     </svg>
                 </button>
             </div>
-            
             <div class="chat-widget-messages" id="chatMessages">
                 <div class="chat-widget-message chat-widget-message--agent">
                     <div class="chat-widget-message-content">
-                        Hi! I'm your AI shopping assistant. I can help you find the perfect camera for your needs. What are you looking for?
+                        Hi! I’m your AI concierge. Tell me how and where you’ll be shooting and I’ll match you with the right body or kit.
                     </div>
                 </div>
             </div>
-            
             <div class="chat-widget-input-container">
-                <div class="chat-widget-thinking" id="chatThinking" style="display: none;">
+                <div class="chat-widget-thinking" id="chatThinking" style="display:none;">
                     <div class="chat-widget-thinking-dots">
                         <span></span>
                         <span></span>
@@ -73,12 +78,13 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <script src="products.js"></script>
     <script src="config.js"></script>
     <script src="data-provider.js"></script>
     <script src="payment-provider.js"></script>
     <script src="openai-service.js"></script>
     <script src="agent.js"></script>
+    <script src="catalog.js"></script>
     <script src="chat-ui.js"></script>
     <script src="app.js"></script>
 </body>

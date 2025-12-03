@@ -259,9 +259,18 @@ class ShoppingAgent {
         console.log('Generated checkout link:', checkoutLink);
 
         // Create recommendation message
-        const message = `I recommend the **${product.name}** for $${product.price}! ${product.description}
+        const featureLines = (product.key_features || []).slice(0, 3).map(feature => `- ${feature}`).join('\n');
+        const summary = product.short_description || 'This kit balances performance and value for passionate creators.';
+        const detailLink = product.detailUrl || checkoutLink;
 
-🛒 [Buy now](${checkoutLink})`;
+        const message = `I recommend the **${product.name}** from ${product.brand} for ${product.price_display || `$${product.price}`}.
+
+${summary}
+
+${featureLines}
+
+📄 [View product details](${detailLink})
+🛒 [Start checkout](${checkoutLink})`;
 
         return {
             message: message,

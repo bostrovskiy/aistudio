@@ -1,0 +1,181 @@
+/* Main Snap-ins css */
+.embeddedServiceSidebar .slds-button.snapins-product,
+.embeddedServiceSidebar .slds-button.snapins-order {
+    display: inline-block !important;
+}
+
+.embeddedServiceHelpButton .helpButton .uiButton {
+    background-color: #3f9a59 !important;
+    min-width: 7em !important;
+    font-size: 14px !important;
+}
+
+.slds-button[disabled], .slds-button:disabled {
+    border: 1px solid #cccccc !important;
+    background-color: #cccccc !important;
+    color: #9a9a9a !important;
+    opacity: 1 !important;
+}
+
+.sidebarMinimized .helpButton,
+.embeddedServiceSidebarMinimizedDefaultUI {
+    min-width: 7em !important;
+    width: auto !important;
+}
+.embeddedServiceSidebarButton {
+    line-height: 1.5!important;
+}
+
+.embeddedServiceSidebarButton.uiButton.dialog-button-0,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:active,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:focus,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:not(:disabled):focus {
+    background-color: #3f9a59 !important;
+    border: 1px solid #3f9a59 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-0 span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:active span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:focus span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:not(:disabled):focus span {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:hover,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:not(:disabled):hover {
+    border: 1px solid #306f3d !important;
+    background-color: #306f3d !important;
+    color: #ffffff !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:hover span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-0:not(:disabled):hover span {
+    color: #ffffff !important;
+}
+
+.embeddedServiceSidebarButton.uiButton.dialog-button-1,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:active,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:focus,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:not(:disabled):focus,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:active,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:focus,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:not(:disabled):focus {
+    border: 1px solid #3f9a59 !important;
+    background-color: #ffffff !important;
+    color: #3f9a59 !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-1 span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:active span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:focus span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:not(:disabled):focus span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:active span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:focus span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:not(:disabled):focus span {
+    color: #3f9a59 !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:hover,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:not(:disabled):hover,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:hover,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:not(:disabled):hover {
+    border: 1px solid #306f3d !important;
+    background-color: #306f3d !important;
+    color: #ffffff !important;
+}
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:hover span,
+.embeddedServiceSidebarButton.uiButton.dialog-button-1:not(:disabled):hover span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:hover span,
+.embeddedServiceSidebarButton.uiButton.waitingCancelChat:not(:disabled):hover span {
+    color: #ffffff !important;
+}
+
+.embeddedServiceLiveAgentStateOfflineSupportDefaultUI {
+    display: none;
+}
+
+button[embeddedService-chatHeader_chatHeader] .slds-icon_x-small,
+button[embeddedService-chatHeader_chatHeader] .slds-icon--x-small,
+.chatHeaderBranding button.minimizeButton,
+.chatHeaderBranding button.closeButton {
+    min-width: 32px;
+    min-height: 32px;
+    width: 32px;
+    height: 32px;
+    line-height: 16px;
+    border: none;
+    fill: #ffffff;
+}
+.chatHeaderBranding button.minimizeButton svg,
+.chatHeaderBranding button.closeButton svg {
+    min-width: 16px;
+    min-height: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.slds-popover {
+    z-index: 9999 !important;
+}
+
+/* mobile */
+@media only screen and (max-width: 600px) {
+    .embeddedServiceHelpButton .helpButton .uiButton,
+    .sidebarHeader.minimizedContainer.helpButton.embeddedServiceSidebarMinimizedDefaultUI {
+        min-width: 44px !important;
+        min-height: 44px !important;
+        right: 16px !important;
+        bottom: 16px !important;
+        padding: 0 5px !important;
+        border-color: transparent !important;
+    }
+    .embeddedServiceHelpButton .helpButton .uiButton .embeddedServiceIcon,
+    .sidebarHeader.minimizedContainer.helpButton.embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+        font-size: 1.5rem !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .embeddedServiceIcon {
+        margin-right: 0px !important;
+    }
+
+    .sidebarHeader.minimizedContainer.embeddedServiceSidebarMinimizedDefaultUI {
+        height: auto !important;
+        padding: 5px 0 !important;
+        border-color: transparent !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI.sidebarHeader {
+        bottom: 12px !important;
+    }
+
+    .embeddedServiceHelpButton .embeddedServiceIcon {
+        margin-right: 4px !important;
+        margin-left: 4px !important;
+        display: inline-block !important;
+    }
+
+    .embeddedServiceSidebarMinimizedDefaultUI .content {
+        padding: 0px !important;
+    }
+}
+/* end Main Snap-ins css */
+
+/* screenmeet css */
+.chat-content.chasitor a,
+.chat-content.chasitor a:focus {
+    color: #ffffff !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    word-wrap: break-word;
+}
+.chat-content.agent a,
+.chat-content.agent a:focus {
+    color: #007ab8 !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    word-wrap: break-word;
+}
+/* end screenmeet css */
