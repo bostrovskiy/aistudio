@@ -116,47 +116,173 @@ class ChatUI {
     }
 
     /**
-     * Format message text (convert markdown-like links to HTML and structure paragraphs)
+     * Format message text (markdown → HTML with simple sanitization)
      * @param {string} text - Raw message text
      * @returns {string} Formatted HTML
      */
     formatMessage(text) {
-        // First, convert [text](url) to <a> tags
-        let formatted = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="checkout-link">$1</a>');
-        
+        const escapeHtml = (value = '') => value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+        const escapeAttribute = (value = '') => value
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+
+        // Preserve links so we can sanitize the rest of the text safely
+        const safeInput = typeof text === 'string' ? text : String(text ?? '');
+        const linkPlaceholders = [];
+        const imagePlaceholders = [];
+        const isSafeUrl = (value = '') => {
+            const sanitized = value.trim();
+            if (!sanitized) return false;
+            if (/^https?:\/\//i.test(sanitized)) return true;
+            if (/^\//.test(sanitized)) return true;
+            if (/^[\w.-]+\.html(\?|#|$)/i.test(sanitized)) return true;
+            return false;
+        };
+
+        const isSafeMediaUrl = (value = '') => {
+            if (isSafeUrl(value)) return true;
+            return /^(\.\/)?assets\//i.test(value) || /^images?\//i.test(value);
+        };
+
+        const toCheckoutUrl = (url) => {
+            if (!url) return 'checkout.html';
+            if (/checkout\.html/i.test(url)) return url;
+            if (/product\.html/i.test(url)) return url.replace(/product\.html/gi, 'checkout.html');
+            if (/index\.html/i.test(url)) return url.replace(/index\.html/gi, 'checkout.html');
+            if (/^[?#]/.test(url)) return `checkout.html${url}`;
+            return url;
+        };
+
+        const buildCheckoutCTA = (detailUrl) => {
+            const detailHref = escapeAttribute(detailUrl || 'index.html#catalog');
+            const checkoutHref = escapeAttribute(toCheckoutUrl(detailUrl));
+            return (
+                `<div class="chat-cta">` +
+                `<a class="chat-cta__button chat-cta__button--ghost" href="${detailHref}" target="_blank" rel="noopener noreferrer">See details</a>` +
+                `<a class="chat-cta__button chat-cta__button--primary" href="${checkoutHref}" target="_blank" rel="noopener noreferrer">Buy now</a>` +
+                `</div>`
+            );
+        };
+
+        const tokenizedImages = safeInput.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
+            const sanitizedUrl = url.trim();
+            if (!isSafeMediaUrl(sanitizedUrl)) {
+                return match;
+            }
+            const token = `__CHAT_IMAGE_${imagePlaceholders.length}__`;
+            const altText = (alt || '').trim() || 'Product photo';
+            imagePlaceholders.push({
+                token,
+                figure: `<figure class="chat-product-thumb"><img src="${escapeAttribute(sanitizedUrl)}" alt="${escapeHtml(altText)}" loading="lazy" /></figure>`
+            });
+            return token;
+        });
+
+        const tokenized = tokenizedImages.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, url) => {
+            const sanitizedUrl = url.trim();
+            if (!isSafeUrl(sanitizedUrl)) {
+                return match;
+            }
+            const token = `__CHAT_LINK_${linkPlaceholders.length}__`;
+            const labelText = label.trim();
+            const isCheckoutLink = /🛒|buy now|checkout/i.test(labelText);
+            const classAttribute = isCheckoutLink ? ' class="checkout-link"' : '';
+            linkPlaceholders.push({
+                token,
+                anchor: isCheckoutLink
+                    ? buildCheckoutCTA(sanitizedUrl)
+                    : `<a${classAttribute} href="${escapeAttribute(sanitizedUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(labelText)}</a>`
+            });
+            return token;
+        });
+
+        // Escape everything else to avoid XSS, then re-apply lightweight markdown
+        const applyInlineMarkdown = (str) => {
+            let result = str;
+            result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+            result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+            result = result.replace(/(^|[^*])\*([^*]+)\*(?!\*)/g, (match, prefix, value) => `${prefix}<em>${value}</em>`);
+            return result;
+        };
+
+        let formatted = escapeHtml(tokenized);
+        formatted = applyInlineMarkdown(formatted);
+
+        linkPlaceholders.forEach(({ token, anchor }) => {
+            formatted = formatted.split(token).join(anchor);
+        });
+
+        imagePlaceholders.forEach(({ token, figure }) => {
+            formatted = formatted.split(token).join(figure);
+        });
+
         // Split into lines and process each line
-        const lines = formatted.split('\n');
+        const linkPlaceholderPattern = /^__CHAT_LINK_\d+__$/;
+        const imagePlaceholderPattern = /^__CHAT_IMAGE_\d+__$/;
+        const lines = formatted.split(/\r?\n/);
         let result = '';
-        let inList = false;
+        let listType = null;
+
+        const closeList = () => {
+            if (listType) {
+                result += `</${listType}>`;
+                listType = null;
+            }
+        };
         
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-            if (!line) continue;
-            
-            // Check if this line starts a bullet point
-            if (line.startsWith('- ') || line.startsWith('• ')) {
-                if (!inList) {
-                    result += '<ul>';
-                    inList = true;
-                }
-                result += `<li>${line.substring(2)}</li>`;
-            } else {
-                // If we were in a list, close it
-                if (inList) {
-                    result += '</ul>';
-                    inList = false;
-                }
-                // Regular paragraph
-                result += `<p>${line}</p>`;
+            if (!line) {
+                closeList();
+                continue;
             }
+            
+            if (/^(-|\*|•)\s+/.test(line)) {
+                if (listType !== 'ul') {
+                    closeList();
+                    result += '<ul>';
+                    listType = 'ul';
+                }
+                result += `<li>${line.replace(/^(-|\*|•)\s+/, '')}</li>`;
+                continue;
+            }
+
+            if (/^\d+\.\s+/.test(line)) {
+                if (listType !== 'ol') {
+                    closeList();
+                    result += '<ol>';
+                    listType = 'ol';
+                }
+                result += `<li>${line.replace(/^\d+\.\s+/, '')}</li>`;
+                continue;
+            }
+            
+            if (linkPlaceholderPattern.test(line) || imagePlaceholderPattern.test(line)) {
+                closeList();
+                result += line;
+                continue;
+            }
+
+            closeList();
+            result += `<p>${line}</p>`;
         }
         
-        // Close list if we ended while in one
-        if (inList) {
-            result += '</ul>';
-        }
+        closeList();
         
-        return result;
+        const unwrapSpecialBlocks = (html) =>
+            html
+                .replace(/<p>(\s*<div class="chat-cta">[\s\S]*?<\/div>)<\/p>/g, '$1')
+                .replace(/<p>(\s*<figure class="chat-product-thumb">[\s\S]*?<\/figure>)<\/p>/g, '$1');
+        
+        return unwrapSpecialBlocks(result);
     }
 
     /**

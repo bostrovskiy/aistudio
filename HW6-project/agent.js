@@ -1,6 +1,49 @@
 // Agent Logic - ReAct Pattern with OpenAI Integration
 // ~100 lines, clear logic flow
 
+const SCENARIO_RULES = [
+    {
+        key: 'beach',
+        terms: ['beach', 'sunny', 'sunlight', 'waterproof', 'coastal', 'sand', 'ocean', 'seaside'],
+        productIds: [
+            'canon-eos-r6-mark-ii-mirrorless-camera',
+            'canon-eos-rebel-t7-dslr-with-18-55mm-and-75-300mm-lenses',
+            'kodak-pixpro-fz55-digital-camera-black'
+        ],
+        narrative: 'Beach-ready: lightweight kit and versatile zoom let you stay on dry sand while quick autofocus keeps faces crisp despite glare.'
+    },
+    {
+        key: 'vlog',
+        terms: ['vlog', 'youtube', 'content', 'creator', 'video', 'stream'],
+        productIds: [
+            'sony-a7-iv-mirrorless-camera-with-basic-bundle',
+            'canon-eos-r6-mark-iii-mirrorless-camera',
+            'nikon-z6-iii-mirrorless-camera'
+        ],
+        narrative: 'Creator-friendly: flip-screen bodies with fast subject tracking keep you framed even while walking and talking.'
+    },
+    {
+        key: 'studio',
+        terms: ['studio', 'commercial', 'client', 'professional', 'dslr', 'portrait'],
+        productIds: [
+            'canon-eos-r5-mark-ii-mirrorless-camera',
+            'canon-eos-5d-mark-iv-dslr-camera-body-only',
+            'nikon-d850-dslr-camera'
+        ],
+        narrative: 'Client-ready: dependable color and dual card redundancy keep long studio days smooth and consistent.'
+    },
+    {
+        key: 'budget',
+        terms: ['budget', 'affordable', 'cheap', 'starter', 'entry'],
+        productIds: [
+            'canon-eos-rebel-t7-dslr-with-18-55mm-and-75-300mm-lenses',
+            'canon-eos-90d-dslr-camera-with-18-135mm-lens',
+            'kodak-pixpro-fz55-digital-camera-black'
+        ],
+        narrative: 'Budget-friendly: reliable autofocus and generous battery life let you practice all day without extra gear.'
+    }
+];
+
 class ShoppingAgent {
     constructor(dataProvider, paymentProvider, openaiService = null) {
         this.dataProvider = dataProvider;
@@ -84,7 +127,11 @@ class ShoppingAgent {
 
         // Simple scoring: count keyword matches
         const scoredProducts = matchingProducts.map(product => {
-            const productKeywords = product.keywords.map(k => k.toLowerCase());
+            const keywordSource = Array.isArray(product.keywords) && product.keywords.length > 0
+                ? product.keywords
+                : (Array.isArray(product.searchTokens) ? product.searchTokens : []);
+            // Scraped product payloads often omit explicit keywords, so fall back to search tokens.
+            const productKeywords = keywordSource.map(k => String(k).toLowerCase());
             const score = keywords.reduce((acc, keyword) => {
                 const matches = productKeywords.filter(pk => 
                     pk.includes(keyword.toLowerCase()) || keyword.toLowerCase().includes(pk)
@@ -98,6 +145,56 @@ class ShoppingAgent {
         // Return highest scoring product
         scoredProducts.sort((a, b) => b.score - a.score);
         return scoredProducts[0].product;
+    }
+
+    /**
+     * Heuristic scenario matcher when keyword search fails
+     * @param {Array<string>} keywords
+     * @returns {Object|null}
+     */
+    getScenarioRule(keywords) {
+        if (!Array.isArray(keywords) || keywords.length === 0) {
+            return null;
+        }
+        const normalized = keywords.map(k => k.toLowerCase());
+        return SCENARIO_RULES.find(rule =>
+            rule.terms.some(term => normalized.includes(term))
+        ) || null;
+    }
+
+    getScenarioProduct(keywords) {
+        if (!Array.isArray(keywords) || keywords.length === 0) {
+            return this.dataProvider.getFeaturedProduct();
+        }
+
+        const rule = this.getScenarioRule(keywords);
+        if (!rule) {
+            return this.dataProvider.getFeaturedProduct();
+        }
+
+        const preferProduct = (ids = []) => {
+            for (const id of ids) {
+                const product = this.dataProvider.findProductById(id);
+                if (product) return product;
+            }
+            return null;
+        };
+
+        const match = preferProduct(rule.productIds);
+        if (match) {
+            return match;
+        }
+
+        return this.dataProvider.getFeaturedProduct();
+    }
+
+    buildScenarioLine(keywords) {
+        const rule = this.getScenarioRule(keywords);
+        if (!rule) return '';
+        if (typeof rule.narrative === 'function') {
+            return rule.narrative();
+        }
+        return rule.narrative;
     }
 
     /**
@@ -178,26 +275,26 @@ class ShoppingAgent {
         const analysis = await this.openaiService.analyzeQuery(query, products);
         console.log('🤖 OpenAI analysis result:', analysis);
 
-        // If ambiguous, ask for clarification
-        if (analysis.isAmbiguous) {
-            const clarificationMessage = analysis.clarificationQuestion || this.getClarificationPrompt();
-            return {
-                message: clarificationMessage,
-                type: 'question'
-            };
-        }
-
-        // Find recommended product
         let product = null;
+
         if (analysis.recommendedProductId) {
             product = this.dataProvider.findProductById(analysis.recommendedProductId);
-        } else if (analysis.keywords && analysis.keywords.length > 0) {
+        }
+
+        if (!product && analysis.keywords && analysis.keywords.length > 0) {
             product = this.findProduct(analysis.keywords);
         }
 
         if (!product) {
+            product = this.getScenarioProduct(analysis.keywords);
+        }
+
+        if (!product) {
+            const fallbackMessage = analysis.isAmbiguous
+                ? (analysis.clarificationQuestion || this.getClarificationPrompt())
+                : "I couldn't find a camera that matches your needs. Could you tell me more about what you're looking for?";
             return {
-                message: "I couldn't find a camera that matches your needs. Could you tell me more about what you're looking for?",
+                message: fallbackMessage,
                 type: 'question'
             };
         }
@@ -207,17 +304,20 @@ class ShoppingAgent {
         console.log('Generated checkout link:', checkoutLink);
 
         // Generate response with OpenAI
+        const scenarioLine = this.buildScenarioLine(analysis.keywords);
         const context = {
             products: products,
             analysis: analysis,
             recommendedProduct: product,
-            checkoutLink: checkoutLink
+            checkoutLink: checkoutLink,
+            scenarioLine: scenarioLine
         };
 
         const message = await this.openaiService.generateResponse(context);
+        const finalMessage = this.composeRecommendationMessage(message, product, checkoutLink);
 
         return {
-            message: message,
+            message: finalMessage,
             type: 'recommendation',
             product: product,
             checkoutLink: checkoutLink
@@ -235,21 +335,20 @@ class ShoppingAgent {
         const analysis = this.analyzeQuery(query);
         console.log('🔧 Simple agent analysis result:', analysis);
 
-        // If ambiguous, ask for clarification
-        if (analysis.isAmbiguous) {
-            return {
-                message: this.getClarificationPrompt(),
-                type: 'question'
-            };
-        }
-
-        // Find matching product
-        const product = this.findProduct(analysis.keywords);
+        // Find matching product or scenario fallback
+        let product = this.findProduct(analysis.keywords);
         console.log('Found product:', product);
 
         if (!product) {
+            product = this.getScenarioProduct(analysis.keywords);
+        }
+
+        if (!product) {
+            const fallbackMessage = analysis.isAmbiguous
+                ? this.getClarificationPrompt()
+                : "I couldn't find a camera that matches your needs. Could you tell me more about what you're looking for?";
             return {
-                message: "I couldn't find a camera that matches your needs. Could you tell me more about what you're looking for?",
+                message: fallbackMessage,
                 type: 'question'
             };
         }
@@ -258,19 +357,30 @@ class ShoppingAgent {
         const checkoutLink = this.paymentProvider.getCheckoutLink(product);
         console.log('Generated checkout link:', checkoutLink);
 
-        // Create recommendation message
-        const featureLines = (product.key_features || []).slice(0, 3).map(feature => `- ${feature}`).join('\n');
-        const summary = product.short_description || 'This kit balances performance and value for passionate creators.';
-        const detailLink = product.detailUrl || checkoutLink;
+        const sanitizeSnippet = (text, fallback) => {
+            if (!text || typeof text !== 'string') return fallback;
+            return text.replace(/\s+/g, ' ').replace(/\.*$/, '').trim() || fallback;
+        };
 
-        const message = `I recommend the **${product.name}** from ${product.brand} for ${product.price_display || `$${product.price}`}.
+        const summary = sanitizeSnippet(product.short_description, 'Balanced performance and value.');
+        const keyFeatures = (product.key_features || []).map(feature => sanitizeSnippet(feature, '')).filter(Boolean);
+        const priceText = product.price_display || `$${product.price}`;
+        const scenarioLine = this.buildScenarioLine(analysis.keywords);
 
-${summary}
+        const practicalBenefit = keyFeatures.find(feature =>
+            /weather|seal|stabil|battery|weight|light|dual|zoom|af|focus|burst|tracking|touch|screen/i.test(feature)
+        ) || summary;
+        const descriptionLines = [
+            scenarioLine || summary,
+            practicalBenefit !== summary ? practicalBenefit : ''
+        ].filter(Boolean).slice(0, 2);
 
-${featureLines}
+        const body = [
+            `**${product.name}** · ${priceText}`,
+            ...descriptionLines
+        ].map(line => line.replace(/\s+/g, ' ').trim()).filter(Boolean).join('\n');
 
-📄 [View product details](${detailLink})
-🛒 [Start checkout](${checkoutLink})`;
+        const message = this.composeRecommendationMessage(body, product, checkoutLink);
 
         return {
             message: message,
@@ -279,4 +389,35 @@ ${featureLines}
             checkoutLink: checkoutLink
         };
     }
+
+    getProductDetailLink(product) {
+        if (!product) return '';
+        if (product.detailUrl) return product.detailUrl;
+        if (product.url) return product.url;
+        if (product.id) return `product.html?id=${encodeURIComponent(product.id)}`;
+        return 'index.html#catalog';
+    }
+
+    composeRecommendationMessage(body, product, detailLink) {
+        const stripCtas = (text = '') =>
+            text.replace(/\[🛒[^\]]*\]\([^)]+\)/gi, '');
+
+        const cleanedBody = stripCtas(body || '')
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean)
+            .join('\n');
+
+        const imageLine = product && product.image
+            ? `![${product.name || 'Product photo'}](${product.image})`
+            : '';
+
+        const linkTarget = detailLink || this.getProductDetailLink(product);
+        const ctaLine = linkTarget ? `[🛒 Buy Now](${linkTarget})` : '';
+
+        return [imageLine, cleanedBody, ctaLine]
+            .filter(Boolean)
+            .join('\n');
+    }
 }
+

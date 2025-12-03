@@ -100,9 +100,12 @@ class OpenAIService {
             throw new Error('OpenAI API key not available');
         }
 
-        const productContext = products.map(p => 
-            `Product: ${p.name} - ${p.description} - $${p.price} - Keywords: ${p.keywords.join(', ')}`
-        ).join('\n');
+        const productContext = products.map(p => {
+            const keywords = Array.isArray(p.keywords) && p.keywords.length > 0
+                ? p.keywords
+                : (Array.isArray(p.searchTokens) ? p.searchTokens : []);
+            return `Product: ${p.name} - ${p.description} - $${p.price} - Keywords: ${keywords.join(', ')}`;
+        }).join('\n');
 
         // Use JSON schema for gpt-5-nano, detailed prompt for other models
         const systemPrompt = this.model === 'gpt-5-nano' 
@@ -340,45 +343,49 @@ Rules:
             throw new Error('OpenAI API key not available');
         }
 
-        const { products = [], analysis = {}, recommendedProduct = null, checkoutLink = null } = context;
+        const {
+            products = [],
+            analysis = {},
+            recommendedProduct = null,
+            checkoutLink = null,
+            scenarioLine = ''
+        } = context;
         
         const productContext = products.map(p => 
-            `Product: ${p.name} - ${p.description} - $${p.price} - Keywords: ${p.keywords.join(', ')}`
+            `Product: ${p.name} - ${p.short_description || p.description || 'No description'} - $${p.price} - Keywords: ${(p.keywords || []).join(', ')}`
         ).join('\n');
 
-        let prompt = `You are a helpful AI shopping assistant for a camera store. Be friendly, knowledgeable, and helpful.
+        let prompt = `You are a helpful AI shopping assistant for Aperture Pro Shop. Be direct, answer the exact customer question, and avoid filler sentences.
 
 Available products:
 ${productContext}
 
 User query: ${analysis.originalQuery || 'N/A'}
-
 `;
 
         if (recommendedProduct) {
-            prompt += `\n\nYou are recommending: ${recommendedProduct.name}
-Price: $${recommendedProduct.price}
-Description: ${recommendedProduct.description}
+            const priceText = recommendedProduct.price_display || `$${recommendedProduct.price}`;
+            const featureList = (recommendedProduct.key_features || []).slice(0, 3).join('; ');
+            const ctaDirective = checkoutLink
+                ? `After the two sentences, add a new line that only contains [🛒 Buy Now](${checkoutLink}).`
+                : `After the two sentences, add a new line inviting them to view the product page in fewer than 10 words.`;
 
-IMPORTANT: Format your response as follows:
-1. Start with an enthusiastic opening (1-2 sentences)
-2. List key features as bullet points, each on a new line starting with "- "
-3. End with a call-to-action using this format: [🛒 Buy Now](${checkoutLink})
+            prompt += `
+Focus on recommending: ${recommendedProduct.name} (${priceText}) by ${recommendedProduct.brand}.
+Notable details: ${featureList || 'Balanced performance and strong value.'}
+Scenario insight: ${scenarioLine || 'The customer is shooting outdoors and cares about real-life usability more than specs.'}
 
-Example format:
-Awesome pick for family adventures at the beach! The Beach-Proof Family Cam is ready to capture every sunny moment.
-
-- Waterproof and durable for beach days and kids' mischief
-- Ideal for family trips, snorkeling, and poolside memories
-- User-friendly, great value at $650
-- Sub-1000 budget, perfect balance of reliability and affordability
-- Lightweight enough for easy handling by everyone
-
-[🛒 Buy Now](${checkoutLink})
-
-Keep it concise, friendly, and well-structured. Use emojis sparingly but effectively.`;
+Response rules:
+- Output exactly two sentences totaling no more than 70 words.
+- Sentence 1 must directly answer the user's question, reference their scenario, and mention the product name in bold once.
+- Sentence 2 must explain, in everyday language, how the camera makes their specific scenario easier (think glare, sand, weight, battery, ease of use). Mention specs only if the user explicitly asked for them.
+- Do not mention megapixel counts, codec names, frame rates, or processor model numbers unless the user asked for them verbatim.
+- Do not use bullet lists, numbered lists, or extra blank lines.
+- ${ctaDirective}
+- Keep the tone confident and informative, no emojis except the provided cart icon.`;
         } else {
-            prompt += `\n\nAsk a clarifying question to help them find the right camera.`;
+            prompt += `
+No product is locked in. Ask a single clarifying question (fewer than 18 words) that references their goal. Do not include any additional sentences or formatting.`;
         }
 
         try {
